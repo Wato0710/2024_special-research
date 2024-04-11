@@ -86,12 +86,12 @@ public class NSB_Manager : CallbackReceiver
 	//Information stored for SB
 	public List<string> listAvailableDevices = new List<string>();  //list of available SB addresses, from scanning
 
-	private bool bIsInitCompleted = false;                          //state, if NSB systems are ready
-	private bool bIsScanning = false;                               //state, if scanning
-	private bool bEegStarted = false;                               //state, if EEG is being transmitted, received
-	private bool bPpgStarted = false;                               //state, if PPG is being transmitted, received
-	private int connectionState = 0;                                //state, on the connection
-	private int prevConnectionState = 0;
+	private bool bIsInitCompleted = false;                          //動作可能な状態にあるかどうか
+	private bool bIsScanning = false;                               //デバイスのスキャンが実行されているかどうか
+	private bool bEegStarted = false;                               //脳波の送信や受信が行われているかどうか
+	private bool bPpgStarted = false;                               //PPG（心拍数）の送信や受信が行われているかどうか
+	private int connectionState = 0;                                //接続状態を示す整数型変数
+	private int prevConnectionState = 0;				//直前の接続状態を保存するための変数
 
 	private string addressConnectingSB = string.Empty;                  //holds address of currently connecting SB
     //private string addressConnectedSB = string.Empty;                   //holds address of currently connected SB
