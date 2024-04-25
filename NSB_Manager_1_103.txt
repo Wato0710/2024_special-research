@@ -102,29 +102,29 @@ public class NSB_Manager : CallbackReceiver
 	private bool bluetoothStatus = false;                      //OSのbluetiithの状態（有効または無効）を保持するブール型の変数
 	private string batteryLevel = string.Empty;                     //senzbandのバッテリーレベルを保持する文字列型の変数
 
-	private float[] mentalStateData = new float[4];
-	private float[] accelerometerData = new float[9];
-	private bool[] channelStatus = new bool[4];
-	private bool goodBTConnection = false;
-	private bool signalReady;
-	private float[,] frequencyBandData = new float[4, 5];
-	private float[] rawEEGData = new float[1000];
-	private float[] filteredEEGData = new float[1000];
-	//private float[] rawEEGData = new float[1000];
-	private float[] eegImpedanceValues = new float[4];
-	private List<int[]> rawPPGData = new List<int[]>();
-	private bool authenticationResult = false;
-	private string authenticationStatus = "";                       //holds the string for authentication status: "200", "No Intenet COnnection" "Invalid"
+	private float[] mentalStateData = new float[4]; //心理状態データを格納するための長さ4の浮動小数点数配列です。心理状態データには、注意、リラックス、精神的な作業負荷などが含まれる可能性があります。
+	private float[] accelerometerData = new float[9]; //加速度計データを格納するための長さ9の浮動小数点数配列です。通常、3軸の加速度計のデータ（X、Y、Z）が含まれます。
+	private bool[] channelStatus = new bool[4]; //チャンネルの状態を示すための長さ4のブール型配列です。各要素は、対応するチャンネルの状態を表します。
+	private bool goodBTConnection = false; //Bluetoothの接続が良好かどうかを示すブール型の変数です。
+	private bool signalReady; //デバイスからの信号が準備されているかどうかを示すブール型の変数です。
+	private float[,] frequencyBandData = new float[4, 5]; //周波数帯域データを格納するための4x5の浮動小数点数配列です。通常、周波数帯域ごとのデータが含まれます。
+	private float[] rawEEGData = new float[1000]; //生のEEGデータを格納するための長さ1000の浮動小数点数配列です。
+	private float[] filteredEEGData = new float[1000]; //フィルタ処理されたEEGデータを格納するための長さ1000の浮動小数点数配列です。
+	//private float[] rawEEGData = new float[1000]; //EEGのインピーダンス値を格納するための長さ4の浮動小数点数配列です。
+	private float[] eegImpedanceValues = new float[4]; //生のPPG（光学的な心拍数測定）データを格納するためのリストです。各要素は、PPGデータを表す整数の配列です。
+	private List<int[]> rawPPGData = new List<int[]>(); //生のPPG（光学的な心拍数測定）データを格納するためのリストです。各要素は、PPGデータを表す整数の配列です。
+	private bool authenticationResult = false; //認証結果を示すブール型の変数です。認証が成功した場合はtrueになります。
+	private string authenticationStatus = "";                       //認証ステータスを示す文字列型の変数です。一般的には、HTTPステータスコード（"200"など）や接続エラーのメッセージなどが含まれます。
 	private float[] gammaReading = new float[4]; 
 	private float[] meanReading = new float[4];
-	private float[] fiftysixtyReading = new float[4];   //50 60 Strength
+	private float[] fiftysixtyReading = new float[4];   //SenzeBandから取得された環境データの一部を格納するための浮動小数点数配列です。それぞれ、ガンマ値、平均値、50-60Hzの強度を示す可能性があります。
 
-	private string directionData = string.Empty;                  //holds direction of currently connecting SB
-	private float[] calibrationParametersData = new float[3];
+	private string directionData = string.Empty;                  //現在接続中のSenzeBandデバイスの方向を示すための文字列です。
+	private float[] calibrationParametersData = new float[3]; //キャリブレーションパラメーターを格納するための長さ3の浮動小数点数配列です。通常、XYZ方向のゲインを示します。
 
-	public static NSB_Manager instance = null;
+	public static NSB_Manager instance = null; //NSB_Managerクラスのインスタンスを参照するための静的な変数です。これにより、他のクラスからNSB_Managerクラスのメンバーにアクセスできます。
 
-	public SBPanelController sbpanel;
+	public SBPanelController sbpanel; //SenzeBandパネルのコントローラーを参照するための変数です。SenzeBandパネルは、おそらくUI要素を制御するために使用されます。
 
-	private int SPO2 = 0;
-	private int heartRate = 0;
+	private int SPO2 = 0; //SenzeBandデバイスから取得されたSPO2（動脈血酸素飽和度）の値を保持する整数です。
+	private int heartRate = 0; //SenzeBandデバイスから取得された心拍数の値を保持する整数です。
