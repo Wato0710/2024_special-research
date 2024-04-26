@@ -1,0 +1,129 @@
+#region Event Callbacks
+/// <summary>
+/// Triggered when SenzeBand connection is successful.
+/// </summary>
+public UnityEvent connectionSuccessfulCallback;
+
+/// <summary>
+/// Triggered when SenzeBand connection is broken or disconnected.
+/// </summary>
+public UnityEvent connectionBrokenCallback;
+
+/// <summary>
+/// Triggered when the app fails to connect successfully to the SenzeBand. 
+/// </summary>
+public UnityEvent connectionFailedCallback;
+
+
+/// <summary>
+/// Triggered when the app receives EEG data from the SenzeBand. 
+/// </summary>
+public UnityEvent rawdataGrabbed;   //will be used to announce if new set of data has been fetched
+public UnityEvent ppgdataGrabbed;   //will be used to announce if new set of data has been fetched
+#endregion
+
+private void Awake()
+{
+	if (instance != null)
+		Destroy(this.gameObject);
+
+	if (instance == null)
+	{
+		instance = this;
+		DontDestroyOnLoad(this.gameObject); //We need this object to persist throughout the lifetime of the program
+	}
+}
+//UNITY mono functions
+// Use this for initialization
+new void Start()
+{
+	base.Start();
+
+	bIsInitCompleted = false;
+	Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+	Init();
+}
+
+// Update is called once per frame
+System.DateTime lastClear = System.DateTime.Now;
+System.TimeSpan period = new System.TimeSpan(0, 0, 6);
+new void Update()
+{
+	base.Update();
+
+	if (bIsScanning)
+	{
+		if (System.DateTime.Now - lastClear > period)
+		{
+			lastClear = System.DateTime.Now;
+			ClearList();
+		}
+	}
+
+	//Tracking connection state;
+	if (connectionState != prevConnectionState)
+	{
+		Debug.Log("NSB Connection state, " + prevConnectionState + " -> " + connectionState);
+		prevConnectionState = connectionState;
+
+		if (connectionState == 4)
+		{
+			connectionSuccessfulCallback.Invoke();
+		}
+	}
+}
+
+private void OnDestroy()
+{
+	Shutdown();
+}
+
+
+/// <summary>
+/// Initialises Bluetooth, NSB library system, and also sets the callback functions when data is received or calculated.
+/// </summary>
+public void Init()
+{
+	//Initialises Bluetooth, NSB libraries, and also sets the callback functions when hardwares' actions are completed.
+	if (bIsInitCompleted == false)
+	{
+		//BLE - Bluetooth system controls
+		NSB_BLE.instance.assignErrorLogDelegate(Log);
+		NSB_BLE.instance.initializeBT(InitComplete, GetDeviceStatus, GetBTStatus, DEVELOPER_CODE);			
+
+		NSB_BLE.instance.assignAuthenticationStatusDelegate(GetAuthenticationStatus);
+		NSB_BLE.instance.assignAuthenticationResultDelegate(GetAuthenticationResult);
+
+		NSB_EEG.instance.assignBatteryStatus(GetBattery);
+		NSB_BLE.instance.assignScanCallBack(FoundAvailableDevice);
+
+		//EEG - EEG signal processing controls 
+		NSB_EEG.instance.assignAttentionDelegate(grabAttention);
+		NSB_EEG.instance.assignRelaxationDelegate(grabRelaxation);
+		NSB_EEG.instance.assignMentalWorkloadDelegate(grabMentalWorkload);
+		NSB_EEG.instance.assignAccDelegate(grabAccelerometer);
+		NSB_EEG.instance.assignChannelDelegate(grabChannelStatus);
+		NSB_EEG.instance.assignGoodConnectionCheckDelegate(grabGoodConnection);
+		NSB_EEG.instance.assignSignalReadyStatusDelegate(grabSignalReady);
+		NSB_EEG.instance.assignMCUIDDelegate(grabMCUID);
+		NSB_EEG.instance.assignABDTDelegate(grabFrequencyBand);
+		NSB_EEG.instance.assignRawDataDelegateFloat(grabRawEEG);
+        NSB_EEG.instance.assignRawDataDelegate200ms(grabRawEEG200ms);
+        NSB_EEG.instance.assignEnvironmentDataDelegate(grabEnvironmentData);
+
+
+		NSB_EEG.instance.assignDirectionDelegate(grabDirection);
+		NSB_EEG.instance.assignCalibrationParametersDelegate(grabCalibrationParameters);
+		NSB_EEG.instance.assignSPO2AndHeartRateDelegate(grabSPO2AndHeartRate);
+
+		NSB_EEG.instance.assignPPGDataDelegate(grabRawPPG);
+		NSB_EEG.instance.assignEEGImpedanceDelegate(grabEEGImpedance);
+		NSB_EEG.instance.assignMageneDataDelegate(grabMageneData);
+
+		NSB_EEG.instance.assignSenzeBandVersionDelegate(grabSenzeBandVersion);
+		NSB_EEG.instance.assignFilteredDataDelegate(grabFilteredEEG);
+
+		SetScanning(true);
+	}
+}
